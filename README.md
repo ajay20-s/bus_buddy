@@ -1,6 +1,8 @@
 # bus_buddy
 
-Potential Functionality: A "Bus Buddy" project often provides features such as:
+##Potential Functionality: 
+
+A "Bus Buddy" project often provides features such as:
 
 Bus Schedules and Routes: Providing detailed information on bus timings, stops, and routes.
 
@@ -14,7 +16,9 @@ Notifications: Alerts for bus arrivals, delays, or route changes.
 
 User Accounts: For personalized experiences, saving favorite routes, or managing bookings.
 
-Possible Technologies: Given the nature of such an application, it could involve:
+##Possible Technologies: 
+
+Given the nature of such an application, it could involve:
 
 Frontend: Web (React, Angular, Vue.js), Mobile (Flutter, React Native, Android, iOS native).
 
