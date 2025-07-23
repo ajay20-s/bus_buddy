@@ -1,6 +1,6 @@
 # bus_buddy
 
-##Potential Functionality: 
+## Potential Functionality: 
 
 A "Bus Buddy" project often provides features such as:
 
@@ -16,7 +16,7 @@ Notifications: Alerts for bus arrivals, delays, or route changes.
 
 User Accounts: For personalized experiences, saving favorite routes, or managing bookings.
 
-##Possible Technologies: 
+## Possible Technologies: 
 
 Given the nature of such an application, it could involve:
 
