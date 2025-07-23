@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "754258596575",
+    "project_id": "bus-buddy-cc253",
+    "storage_bucket": "bus-buddy-cc253.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754258596575:android:16fcb67514a5710ddd0f6a",
+        "android_client_info": {
+          "package_name": "com.busbooking.bus_buddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUvEw5dgh0BLi68YHC8EX2Dw3RYtv6JKo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

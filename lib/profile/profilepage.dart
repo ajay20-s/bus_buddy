@@ -1,9 +1,13 @@
 import 'package:bus_buddy/dashboard/dashboard.dart';
 import 'package:bus_buddy/loginpage.dart';
+import 'package:bus_buddy/profile/booked_tickets.dart';
 import 'package:bus_buddy/profile/update_profilescreen.dart';
+import 'package:bus_buddy/providers/themeprovider.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'profilemenuwidget.dart';
+//import 'theme_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -13,21 +17,53 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String profileName = 'John Doe';
+  final SupabaseClient supabaseClient = Supabase.instance.client;
+  String profileName = 'Loading...';
+  String profileEmail = 'Loading...';
 
-  String profileEmail = 'johndoe@example.com';
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileDetails();
+  }
+
+  void fetchProfileDetails() async {
+    final user = supabaseClient.auth.currentUser;
+    if (user != null) {
+      try {
+        final response = await supabaseClient
+            .from('users')
+            .select('username, email')
+            .eq('auth_id', user.id)
+            .limit(1) // Limit to one row
+            .single();
+
+        if (response != null) {
+          setState(() {
+            profileName = response['username'];
+            profileEmail = response['email'];
+          });
+        } else {
+          print('No data found for user with ID: ${user.id}');
+        }
+      } catch (e) {
+        print('Error fetching profile details: $e');
+      }
+    } else {
+      print('Current user is null');
+    }
+  }
 
   void updateProfileDetails(String newName, String newEmail) {
     setState(() {
       profileName = newName;
       profileEmail = newEmail;
     });
-    //const ProfilePage({Key? key}) : super(key: key);
   }
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -42,6 +78,16 @@ class _ProfilePageState extends State<ProfilePage> {
           'Profile',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          Switch.adaptive(
+            value: themeProvider.isDarkMode,
+            onChanged: (value) {
+              final provider =
+                  Provider.of<ThemeProvider>(context, listen: false);
+              provider.toggleTheme(value);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -104,9 +150,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 onpress: () {},
               ),
               ProfileMenuWidget(
-                title: 'Billing Details',
+                title: 'Booked Tickets',
                 icon: Icons.wallet,
-                onpress: () {},
+                onpress: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookedTicketsPage(),
+                    ),
+                  );
+                },
               ),
               ProfileMenuWidget(
                 title: 'User Management',
@@ -124,6 +177,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 icon: Icons.settings,
                 endIcon: false,
                 onpress: () {
+                  supabaseClient.auth.signOut();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const Loginpage()),
@@ -136,10 +190,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-  //void redirectToUpdateProfileScreen(BuildContext context) {}
-
-  //void redirectTodashboard(BuildContext context) {}
 }
 
 class ProfileMenuWidget extends StatelessWidget {

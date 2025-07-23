@@ -1,14 +1,14 @@
 import 'package:bus_buddy/dashboard/dashboard.dart';
 import 'package:bus_buddy/forget_password/forgot_passwordemail.dart';
 import 'package:bus_buddy/forget_password/forgot_passwordphone.dart';
+import 'package:bus_buddy/host/HostingPage.dart';
+import 'package:bus_buddy/host/hostpage.dart';
 import 'package:bus_buddy/main.dart';
 import 'package:bus_buddy/signup_screen.dart';
 import 'package:bus_buddy/snackbar_extension.dart';
 import 'package:bus_buddy/superbase/superbase_service.dart';
-//import 'package:bus_buddy/superbase/authenticationnotifier.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Loginpage extends StatefulWidget {
@@ -22,16 +22,14 @@ class _LoginpageState extends State<Loginpage> {
   final SupabaseClient supabaseClient = Supabase.instance.client;
   bool isloading = false;
   GlobalKey<FormState> _formKey = GlobalKey();
-  // final SupabaseClient supabaseClient = Supabase.instance.client;
   late TextEditingController emailcontroller = TextEditingController();
   late TextEditingController passwordcontroller = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void initState() {
     emailcontroller = TextEditingController();
     passwordcontroller = TextEditingController();
-    // fullnamecontroller = TextEditingController();
-    //phonenocontroller = TextEditingController();
     super.initState();
   }
 
@@ -39,7 +37,6 @@ class _LoginpageState extends State<Loginpage> {
   void dispose() {
     emailcontroller.dispose();
     passwordcontroller.dispose();
-    // fullnamecontroller.dispose();
     super.dispose();
   }
 
@@ -50,12 +47,41 @@ class _LoginpageState extends State<Loginpage> {
         isloading = true;
       });
       try {
-        await supabaseClient.auth.signInWithPassword(
+        final response = await supabaseClient.auth.signInWithPassword(
             email: emailcontroller.text, password: passwordcontroller.text);
-        setState(() {
-          isloading = false;
-        });
-        navigatetodashboard();
+
+        if (response.user != null) {
+          // Update the last_sign_in time in your users table
+          final authId = response.user!.id;
+
+          await supabaseClient
+              .from('users')
+              .update({'last_sign_in': DateTime.now().toIso8601String()}).eq(
+                  'auth_id', authId);
+
+          // Check the user type
+          final user = await supabaseClient
+              .from('users')
+              .select('type')
+              .eq('auth_id', authId)
+              .single();
+
+          setState(() {
+            isloading = false;
+          });
+
+          if (user['type'] == 'host') {
+            navigatetohostpage();
+          } else {
+            navigatetodashboard();
+          }
+        } else {
+          context.showSnackbar(
+              message: 'Authentication failed', backgroundColor: Colors.red);
+          setState(() {
+            isloading = false;
+          });
+        }
       } on AuthException catch (e) {
         context.showSnackbar(message: e.message, backgroundColor: Colors.red);
         setState(() {
@@ -73,7 +99,18 @@ class _LoginpageState extends State<Loginpage> {
 
   void navigatetodashboard() {
     Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(builder: (_) => dashboard()), (route) => false);
+        MaterialPageRoute(builder: (_) => Dashboard()), (route) => false);
+  }
+
+  void navigatetohostpage() {
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (_) => HostPage()), (route) => false);
+  }
+
+  void togglePasswordVisibility() {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
   }
 
   @override
@@ -134,14 +171,22 @@ class _LoginpageState extends State<Loginpage> {
                           ),
                           TextFormField(
                             controller: passwordcontroller,
+                            obscureText: _obscurePassword,
                             decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.fingerprint),
-                                labelText: 'password',
-                                hintText: 'password',
-                                border: OutlineInputBorder(),
-                                suffixIcon: IconButton(
-                                    onPressed: null,
-                                    icon: Icon(Icons.remove_red_eye_sharp))),
+                              prefixIcon: Icon(Icons.fingerprint),
+                              labelText: 'password',
+                              hintText: 'password',
+                              border: OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.black,
+                                ),
+                                onPressed: togglePasswordVisibility,
+                              ),
+                            ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Required";
@@ -187,9 +232,11 @@ class _LoginpageState extends State<Loginpage> {
                                               ),
                                               GestureDetector(
                                                 onTap: () {
-                                                  Navigator.pop(context);
-                                                  Get.to(() =>
-                                                      Forgot_password_email());
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ForgotPasswordEmail()));
                                                 },
                                                 child: Container(
                                                   padding: EdgeInsets.all(20),
@@ -297,15 +344,7 @@ class _LoginpageState extends State<Loginpage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: isloading
-                                  ? null
-                                  : signInWithEmail /*{
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => dashboard()));
-                          },*/
-                              ,
+                              onPressed: isloading ? null : signInWithEmail,
                               child: Text('Login'),
                             ),
                           ),

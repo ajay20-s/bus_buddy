@@ -1,4 +1,4 @@
-import 'package:bus_buddy/dashboard/ticket.dart';
+import 'package:bus_buddy/dashboard/viewticket.dart';
 import 'package:flutter/material.dart';
 
 class Busview extends StatelessWidget {
@@ -13,8 +13,9 @@ class Busview extends StatelessWidget {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ticket()));
+          /* Navigator.push(
+              context, MaterialPageRoute(builder: (context) => ViewTicketPage())
+              );*/
         },
         child: Container(
           padding: EdgeInsets.all(20),

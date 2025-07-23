@@ -35,8 +35,8 @@ dependencies:
   google_fonts: ^6.1.0
   smooth_page_indicator: ^1.1.0
   get: ^4.6.6
+  uni_links: ^0.5.1
   qr_flutter: ^4.1.0
-  cloud_firestore: ^4.13.6
   line_awesome_flutter: ^2.0.0
   table_calendar: ^3.1.1
   provider: ^6.1.2
@@ -47,6 +47,14 @@ dependencies:
   shared_preferences: ^2.2.2
   image: ^4.1.7
   image_gallery_saver: ^2.0.3
+  video_player: ^2.9.1
+  chewie: ^1.8.1
+  http: ^1.2.1
+  cloud_firestore: ^5.1.0
+  cloud_firestore_web: ^4.0.3
+  email_otp: ^3.0.2
+  url_launcher: ^6.3.0
+  intl: ^0.19.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
